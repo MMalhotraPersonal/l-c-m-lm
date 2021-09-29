@@ -1,159 +1,440 @@
-connection: "a1lk_cxn_client_lululemon"
-include: "*.view.lkml"          # include all views in this project
-include: "*.dashboard.lookml"  # include all dashboards in this project
-include: "//a1lk_project_agilone_base/*.dashboard.lookml" # include all dashboards in the base project
-include: "//a1lk_project_agilone_base/Attribution/d8__multi_touch_attribution.dashboard"
+include: "//a1lk_project_agilone_base/customersummary.view.lkml"
+view: c_customersummary {
+  extends: [customersummary]
 
-map_layer: canada_forward_sortation_areas {
-  format: topojson
-  label: "Canada Forward Sortation Areas"
-  url: "https://raw.githubusercontent.com/brechtv/looker_map_layers/master/canada-forward-sortation-areas.topojson"
-}
-
-explore: standard_model  {
-  description: "AgilOne Standard Model"
-  label: "Standard Model"
-
-  view_name: c_customersummary
-
-  join: c_transactionsummary {
-    type: left_outer
-    relationship: one_to_many
-    sql_on: ${c_transactionsummary.mastercustomer_id} = ${c_customersummary.mastercustomer_id} ;;
+  dimension: c_geohierarchy_area {
+    type: string
+    sql: ${TABLE}.c_customerarea ;;
+    label: "Geohierarchy - Area"
+    group_label: "Geohierarchy"
   }
 
-  join: c_timesummary_transactionsummary_transactiondate {
-    type: left_outer
-    relationship: many_to_one
-    sql_on:${c_transactionsummary.transaction_date_join} = ${c_timesummary_transactionsummary_transactiondate.id} ;;
+  dimension: c_geohierarchy_market {
+    type: string
+    sql: ${TABLE}.c_customermarket ;;
+    label: "Geohierarchy - Market"
+    group_label: "Geohierarchy"
   }
 
-  join: c_timesummary_transactionsummary_transactionlinedate {
-    type: left_outer
-    relationship: many_to_one
-    sql_on:${c_transactionsummary.transaction_line_date_join} = ${c_timesummary_transactionsummary_transactionlinedate.id} ;;
+  dimension: c_geohierarchy_region {
+    type: string
+    sql: ${TABLE}.c_customerregion ;;
+    label: "Geohierarchy - Region"
+    group_label: "Geohierarchy"
   }
 
-  join: c_timesummary_customersummary_firsttransactiondate {
-    type: left_outer
-    relationship: many_to_one
-    sql_on:${c_customersummary.first_transaction_date_join} = ${c_timesummary_customersummary_firsttransactiondate.id} ;;
+  dimension: c_geohierarchy_state {
+    type: string
+    sql: ${TABLE}.c_customerstate ;;
+    label: "Geohierarchy - State"
+    group_label: "Geohierarchy"
   }
 
-  join: c_timesummary_customersummary_lasttransactiondate {
-    type: left_outer
-    relationship: many_to_one
-    sql_on:${c_customersummary.last_transaction_date_join} = ${c_timesummary_customersummary_lasttransactiondate.id} ;;
+  dimension: c_geohierarchy_country {
+    type: string
+    sql: ${TABLE}.c_customercountry ;;
+    label: "Geohierarchy - Country"
+    group_label: "Geohierarchy"
   }
 
-  join: c_promotiontypesummary_customersummary_firsttransaction_lasttouch_online {
-    type: left_outer
-    relationship: many_to_one
-    sql_on:${c_customersummary.first_transaction_last_touch_online_id} = ${c_promotiontypesummary_customersummary_firsttransaction_lasttouch_online.id} ;;
+  dimension_group: c_sweat_collective_created_date {
+    type: time
+    timeframes: [
+      raw,
+      date,
+      day_of_week,
+      day_of_month,
+      week_of_year,
+      month,
+      month_name,
+      quarter,
+      quarter_of_year,
+      year
+    ]
+    sql: ${TABLE}.c_SC_createdDate ;;
+    datatype: timestamp
+    label: "Sweat Collective Created"
   }
 
-  join: c_promotiontypesummary_customersummary_firsttransaction_lasttouch_offline {
-    type: left_outer
-    relationship: many_to_one
-    sql_on:${c_customersummary.first_transaction_last_touch_offline_id} = ${c_promotiontypesummary_customersummary_firsttransaction_lasttouch_offline.id} ;;
+  dimension: c_sweat_collective_athlete_type {
+    type: string
+    sql: ${TABLE}.c_SC_athleteType ;;
+    label: "Sweat Collective Athlete Type"
+    group_label: "Sweat Collective"
   }
 
-  join: c_promotiontypesummary_transactionsummary_lasttouch_online {
-    type: left_outer
-    relationship: many_to_one
-    sql_on:${c_transactionsummary.last_touch_online_id} = ${c_promotiontypesummary_transactionsummary_lasttouch_online.id} ;;
+  dimension: c_sweat_collective_bottom_size {
+    type: string
+    sql: ${TABLE}.c_SC_bottomSize ;;
+    label: "Sweat Collective Bottom Size"
+    group_label: "Sweat Collective"
   }
 
-  join: c_promotiontypesummary_transactionsummary_lasttouch_offline {
-    type: left_outer
-    relationship: many_to_one
-    sql_on:${c_transactionsummary.last_touch_offline_id} = ${c_promotiontypesummary_transactionsummary_lasttouch_offline.id} ;;
+  dimension: c_sweat_collective_bra_size {
+    type: string
+    sql: ${TABLE}.c_SC_braSize ;;
+    label: "Sweat Collective Bra Size"
+    group_label: "Sweat Collective"
   }
 
-  join: c_productsummary {
-    type: left_outer
-    relationship: many_to_one
-    sql_on: ${c_transactionsummary.product_id} = ${c_productsummary.id} ;;
+  dimension: c_sweat_collective_former_rnd {
+    type: string
+    sql: ${TABLE}.c_SC_formerRnD ;;
+    label: "Sweat Collective Former RnD"
+    group_label: "Sweat Collective"
   }
 
-  join: c_productactivity {
-    type: left_outer
-    relationship: many_to_many
-    sql_on: ${c_transactionsummary.c_source_product_number} = ${c_productactivity.c_source_product_number} ;;
+  dimension: c_sweat_collective_home_store_name {
+    type: string
+    sql: ${TABLE}.c_SC_homeStoreName ;;
+    label: "Sweat Collective Home Store Name"
+    group_label: "Sweat Collective"
   }
 
-  join: c_productcategoryxref {
-    fields: [productcategory_id, product_id]
-    type: left_outer
-    relationship: many_to_many
-    sql_on: ${c_transactionsummary.product_id} = ${c_productcategoryxref.product_id} ;;
+  dimension: c_sweat_collective_session_frequency {
+    type: string
+    sql: ${TABLE}.c_SC_sessionFrequency ;;
+    label: "Sweat Collective Session Frequency"
+    group_label: "Sweat Collective"
   }
 
-  join: c_productcategorysummary {
-    type: left_outer
-    relationship: many_to_one
-    sql_on: ${c_productcategoryxref.productcategory_id} = ${c_productcategorysummary.id} ;;
+  dimension: c_sweat_collective_session_participants {
+    type: string
+    sql: ${TABLE}.c_SC_sessionParticipants ;;
+    label: "Sweat Collective Session Participants"
+    group_label: "Sweat Collective"
   }
 
-  join: c_customerfirsttransactionproductcategory {
-    type: left_outer
-    relationship: one_to_many
-    sql_on: ${c_customersummary.mastercustomer_id} = ${c_customerfirsttransactionproductcategory.mastercustomer_id} ;;
+  dimension: c_sweat_collective_shoe_size {
+    type: string
+    sql: ${TABLE}.c_SC_shoeSize ;;
+    label: "Sweat Collective Shoe Size"
+    group_label: "Sweat Collective"
   }
 
-  join: c_customerlasttransactionproductcategory {
-    type: left_outer
-    relationship: one_to_many
-    sql_on: ${c_customersummary.mastercustomer_id} = ${c_customerlasttransactionproductcategory.mastercustomer_id} ;;
+  dimension: c_sweat_collective_status {
+    type: string
+    sql: ${TABLE}.c_SC_status ;;
+    label: "Sweat Collective Status"
+    group_label: "Sweat Collective"
   }
 
-  join: c_productcategorysummary_customersummary_firsttransaction {
-    type: left_outer
-    relationship: many_to_one
-    sql_on: ${c_customerfirsttransactionproductcategory.productcategory_id} = ${c_productcategorysummary_customersummary_firsttransaction.id} ;;
+  dimension: c_sweat_collective_top_size {
+    type: string
+    sql: ${TABLE}.c_SC_topSize ;;
+    label: "Sweat Collective Top Size"
+    group_label: "Sweat Collective"
   }
 
-  join: c_productcategorysummary_customersummary_lasttransaction {
-    type: left_outer
-    relationship: many_to_one
-    sql_on: ${c_customerlasttransactionproductcategory.productcategory_id} = ${c_productcategorysummary_customersummary_lasttransaction.id} ;;
+  dimension: c_ambassador {
+    type: string
+    sql: ${TABLE}.c_isambassador ;;
+    label: "Ambassador"
+    group_label: "Marketing Status & Preferences"
   }
 
-  join: c_organizationsummary {
-    type: left_outer
-    relationship: many_to_one
-    sql_on: ${c_transactionsummary.organization_id} = ${c_organizationsummary.id} ;;
+  dimension: c_employee_status {
+    type: string
+    sql: ${TABLE}.c_workdayemployeestatus ;;
+    label: "Employee Status"
+    group_label: "Marketing Status & Preferences"
   }
 
-  join: c_lulumodels {
-    type: left_outer
-    relationship: one_to_many
-    sql_on: ${c_customersummary.mastercustomer_id} = ${c_lulumodels.c_mastercustomer_id} ;;
+  dimension: c_employee_type {
+    type: string
+    sql: ${TABLE}.c_workdayemployeetype ;;
+    label: "Employee Type"
+    group_label: "Marketing Status & Preferences"
   }
 
-  join: c_mastercustomer {
-    type: left_outer
-    relationship: one_to_many
-    sql_on: ${c_customersummary.mastercustomer_id} = ${c_mastercustomer.mastercustomer_id} ;;
+  dimension: c_preferred_language {
+    type: string
+    sql: ${TABLE}.c_preferredlanguage ;;
+    label: "Preferred Language"
+    group_label: "Marketing Status & Preferences"
   }
 
-  join: c_cohort {
-    type: left_outer
-    relationship: one_to_many
-    sql_on: ${c_mastercustomer.customer_id} = ${c_cohort.mastercustomer_id} ;;
+  dimension: c_research_dev {
+    type: string
+    sql: ${TABLE}.c_researchdev ;;
+    label: "R&D"
+    group_label: "Marketing Status & Preferences"
   }
 
-  join: c_ml_out_mc_summary {
-    type: left_outer
-    relationship: one_to_one
-    sql_on: ${c_customersummary.mastercustomer_id} = ${c_ml_out_mc_summary.mastercustomer_id};;
+  dimension: c_signup_store {
+    type: string
+    sql: ${TABLE}.c_signupstore ;;
+    label: "Signup Store"
+    group_label: "Marketing Status & Preferences"
   }
 
-  join: c_attribution {
-    type: full_outer
-    relationship: one_to_many
-    sql_on: ${c_attribution.mastercustomerid}=${c_customersummary.mastercustomer_id}
-      and (${c_attribution.line_item_id}=${c_transactionsummary.id}) ;;
+  dimension_group: c_registration_date {
+    type: time
+    timeframes: [
+      raw,
+      date,
+      day_of_week,
+      day_of_month,
+      week_of_year,
+      month,
+      month_name,
+      quarter,
+      quarter_of_year,
+      year
+    ]
+    sql: ${TABLE}.c_registrationdate ;;
+    datatype: timestamp
+    label: "Registration"
+  }
+
+  dimension_group: c_store_signup_date {
+    type: time
+    timeframes: [
+      raw,
+      date,
+      day_of_week,
+      day_of_month,
+      week_of_year,
+      month,
+      month_name,
+      quarter,
+      quarter_of_year,
+      year
+    ]
+    sql: ${TABLE}.c_storesignupdate ;;
+    datatype: timestamp
+    label: "Store Signup"
+  }
+
+  dimension: c_lulu_lapsed_subsegment_30_days_ago {
+    type: string
+    sql: ${TABLE}.c_lapsedSubSegment30Days ;;
+    label: "Lulu Lapsed Sub-Segment - 30 Days Ago"
+    group_label: "Lulu Segments/Models"
+  }
+
+  dimension: c_lulu_lapsed_subsegment_365_days_ago {
+    type: string
+    sql: ${TABLE}.c_lapsedSubSegment365Days ;;
+    label: "Lulu Lapsed Sub-Segment - 365 Days Ago"
+    group_label: "Lulu Segments/Models"
+  }
+
+  dimension: c_lulu_lapsed_subsegment_90_days_ago {
+    type: string
+    sql: ${TABLE}.c_lapsedSubSegment90Days ;;
+    label: "Lulu Lapsed Sub-Segment - 90 Days Ago"
+    group_label: "Lulu Segments/Models"
+  }
+
+  dimension: c_lulu_lapsed_subsegment_today {
+    type: string
+    sql: ${TABLE}.c_lapsedSubSegment ;;
+    label: "Lulu Lapsed Sub-Segment - Today"
+    group_label: "Lulu Segments/Models"
+  }
+
+  dimension: c_lulu_lifecycle_segment_30_days_ago {
+    type: string
+    sql: ${TABLE}.c_lifeCycleSegment30Days ;;
+    label: "Lulu Lifecycle Segment - 30 Days Ago"
+    group_label: "Lulu Segments/Models"
+  }
+
+  dimension: c_lulu_lifecycle_segment_365_days_ago {
+    type: string
+    sql: ${TABLE}.c_lifeCycleSegment365Days ;;
+    label: "Lulu Lifecycle Segment - 365 Days Ago"
+    group_label: "Lulu Segments/Models"
+  }
+
+  dimension: c_lulu_lifecycle_segment_90_days_ago {
+    type: string
+    sql: ${TABLE}.c_lifeCycleSegment90Days ;;
+    label: "Lulu Lifecycle Segment - 90 Days Ago"
+    group_label: "Lulu Segments/Models"
+  }
+
+  dimension: c_lulu_lifecycle_segment_today {
+    type: string
+    sql: ${TABLE}.c_lifeCycleSegment ;;
+    label: "Lulu Lifecycle Segment - Today"
+    group_label: "Lulu Segments/Models"
+  }
+
+  dimension: c_lulu_rfm_segment_30_days_ago {
+    type: string
+    sql: ${TABLE}.c_rfmSegment30Days ;;
+    label: "Lulu RFM Segment - 30 Days Ago"
+    group_label: "Lulu Segments/Models"
+  }
+
+  dimension: c_lulu_rfm_segment_365_days_ago {
+    type: string
+    sql: ${TABLE}.c_rfmSegment365Days ;;
+    label: "Lulu RFM Segment - 365 Days Ago"
+    group_label: "Lulu Segments/Models"
+  }
+
+  dimension: c_lulu_rfm_segment_90_days_ago {
+    type: string
+    sql: ${TABLE}.c_rfmSegment90Days ;;
+    label: "Lulu RFM Segment - 90 Days Ago"
+    group_label: "Lulu Segments/Models"
+  }
+
+  dimension: c_lulu_rfm_segment {
+    type: string
+    sql: ${TABLE}.c_RFMTier ;;
+    label: "Lulu RFM Segment"
+    group_label: "Lulu Segments/Models"
+  }
+
+  dimension_group: c_nps_last_response_date {
+    type: time
+    timeframes: [
+      raw,
+      date,
+      day_of_week,
+      day_of_month,
+      week_of_year,
+      month,
+      month_name,
+      quarter,
+      quarter_of_year,
+      year
+    ]
+    sql: ${TABLE}.c_NPS_ResponseDate ;;
+    datatype: timestamp
+    label: "NPS Last Response"
+  }
+
+  dimension: c_nps_last_score {
+    type: number
+    sql: ${TABLE}.c_NPS_Score ;;
+    label: "NPS Last Score"
+    group_label: "NPS"
+  }
+
+  dimension: c_nps_last_segment {
+    type: string
+    sql: ${TABLE}.c_NPS_Segment ;;
+    label: "NPS Last Segment"
+    group_label: "NPS"
+  }
+
+  dimension: c_nps_last_store_name {
+    type: string
+    sql: ${TABLE}.c_npsStoreName ;;
+    label: "NPS Last Store Name"
+    group_label: "NPS"
+  }
+
+  dimension: c_nps_last_store_number {
+    type: string
+    sql: ${TABLE}.c_NPS_Store ;;
+    label: "NPS Last Store Number"
+    group_label: "NPS"
+  }
+
+  dimension: c_is_loyalty_member {
+    type: string
+    sql: ${TABLE}.c_loyaltyUserFlag ;;
+    label: "Is Loyalty Member"
+    group_label: "Loyalty"
+    description: "Flag describing whether a guest is a Loyalty member"
+  }
+
+  dimension: c_loyalty_region {
+    type: string
+    sql: ${TABLE}.c_loyaltyregion ;;
+    label: "Loyalty Region"
+    group_label: "Loyalty"
+    description: "Region where a guest is a Loyalty member"
+  }
+
+  dimension_group: c_loyalty_start_date {
+    type: time
+    timeframes: [
+      raw,
+      date,
+      day_of_week,
+      day_of_month,
+      week_of_year,
+      month,
+      month_name,
+      quarter,
+      quarter_of_year,
+      year
+    ]
+    sql: ${TABLE}.c_loyaltyStartDate ;;
+    datatype: timestamp
+    label: "Loyalty Start"
+    description: "The date a guest's Loyalty membership started"
+  }
+
+  dimension_group: c_loyalty_end_date {
+    type: time
+    timeframes: [
+      raw,
+      date,
+      day_of_week,
+      day_of_month,
+      week_of_year,
+      month,
+      month_name,
+      quarter,
+      quarter_of_year,
+      year
+    ]
+    sql: ${TABLE}.c_loyaltyEndDate ;;
+    datatype: timestamp
+    label: "Loyalty End"
+    description: "The date a guest's Loyalty membership ended"
+  }
+
+  dimension: likelihood_to_buy_today {
+    hidden: no
+  }
+
+  dimension_group: c_effective_start_date {
+    type: time
+    timeframes: [
+      raw,
+      date,
+      day_of_week,
+      day_of_month,
+      week_of_year,
+      month,
+      month_name,
+      quarter,
+      quarter_of_year,
+      year
+    ]
+    sql: ${TABLE}.c_effectiveStartDate ;;
+    datatype: timestamp
+    label: "Employee Effective Start"
+    description: "The effective start date of the employee"
+  }
+
+  dimension_group: c_effective_end_date {
+    type: time
+    timeframes: [
+      raw,
+      date,
+      day_of_week,
+      day_of_month,
+      week_of_year,
+      month,
+      month_name,
+      quarter,
+      quarter_of_year,
+      year
+    ]
+    sql: ${TABLE}.c_effectiveEndDate ;;
+    datatype: timestamp
+    label: "Employee Effective End"
+    description: "The effective end date of the employee"
   }
 
 }
